@@ -16,16 +16,15 @@
 //   console.log(`Servidor corriendo en http://localhost:${port}/`);
 // });
 
-
-import express, { Request, Response } from 'express';
-import cors from 'cors';
-import swaggerUi from 'swagger-ui-express';
-import swaggerJsDoc from 'swagger-jsdoc';
-import dotenv from 'dotenv';
+import express, { Request, Response } from "express";
+import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import swaggerJsDoc from "swagger-jsdoc";
+import dotenv from "dotenv";
 // import mongoose from 'mongoose'; // <--- COMENTADO: No usaremos BD por ahora
 
 // Importar rutas
-import geoRoutes from './routes/testRoute';
+import geoRoutes from "./routes/testRoute";
 
 dotenv.config();
 
@@ -38,32 +37,31 @@ app.use(express.json());
 // --- CONFIGURACIÓN SWAGGER ---
 const swaggerOptions = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'CiudadData API',
-      version: '1.0.0',
-      description: 'API Gateway sin conexión a BD',
+      title: "CiudadData API",
+      version: "1.0.0",
+      description:
+        "API para conectarse a informacion del mundo mundial mundialisimo",
     },
-    servers: [
-      { url: `http://localhost:${PORT}` }
-    ],
+    servers: [{ url: `http://localhost:${PORT}` }],
   },
   // Apunta a tus archivos de rutas
-  apis: ['./src/routes/*.ts'], 
+  apis: ["./src/routes/*.ts"],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // --- RUTAS ---
-app.use('/api/geo', geoRoutes);
+app.use("/api/geo", geoRoutes);
 
 // Ruta simple
 
-app.get('/api/saludo', (req: Request, res: Response) => {
-  res.json({ 
-    mensaje: '¡Conexión exitosa con el Backend!',
-    fecha: new Date().toLocaleString()
+app.get("/api/saludo", (req: Request, res: Response) => {
+  res.json({
+    mensaje: "¡Conexión exitosa con el Backend!",
+    fecha: new Date().toLocaleString(),
   });
 });
 
