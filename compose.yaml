@@ -7,14 +7,74 @@
 # You can add other services your application may depend on here, such as a
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
+
+## DEFAULT ##
+
+# services:
+#   server:
+#     build:
+#       context: .
+#     environment:
+#       NODE_ENV: production
+#     ports:
+#       - 3000:3000
+
 services:
-  server:
-    build:
-      context: .
-    environment:
-      NODE_ENV: production
+  # 1. Servicio de Base de Datos (MongoDB)
+  # Requerido para guardar reportes y cachear datos 
+  mongo:
+    image: mongo:latest
+    container_name: mongodb_ciudaddata
     ports:
-      - 3000:3000
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+  # 2. Servicio Backend (API Node.js/Express)
+  backend:
+    build:
+      context: ./backend # Apunta a tu carpeta backend
+      dockerfile: Dockerfile
+    container_name: api_ciudaddata
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      # Cadena de conexión usando el nombre del servicio 'mongo'
+      - MONGO_URI=mongodb://mongo:27017/ciudaddata
+      - NODE_ENV=development 
+    depends_on:
+      - mongo # Espera a que la BD inicie
+    volumes:
+      # Mapeo para hot-reload (ver cambios sin reconstruir)
+      - ./backend/src:/usr/src/app/src
+      - ./backend/package.json:/usr/src/app/package.json
+    networks:
+      - app-network
+
+  # 3. Servicio Frontend (HTML/CSS/JS servido por Nginx)
+  frontend:
+    build:
+      context: ./frontend # Apunta a tu carpeta frontend
+      dockerfile: Dockerfile
+    container_name: web_ciudaddata
+    ports:
+      - "8080:80" # Tu PC (8080) -> Contenedor Nginx (80)
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+# Volúmenes para persistencia de datos
+volumes:
+  mongo-data:
+
+# Red interna para que los contenedores se vean entre sí
+networks:
+  app-network:
+    driver: bridge
 
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to
